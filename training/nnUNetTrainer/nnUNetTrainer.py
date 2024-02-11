@@ -147,8 +147,8 @@ class nnUNetTrainer(object):
         self.num_iterations_per_epoch = 250
         self.num_val_iterations_per_epoch = 50
  
-        # self.num_epochs = 1000
-        self.num_epochs = 50
+        # self.num_epochs = 1000 #todo: change EPOCHS?
+        self.num_epochs = 10 #changed from 50
         self.current_epoch = 0
         self.enable_deep_supervision = True
 
@@ -1085,14 +1085,27 @@ class nnUNetTrainer(object):
                     'inference_allowed_mirroring_axes': self.inference_allowed_mirroring_axes,
                 }
                 torch.save(checkpoint, filename)
+                #TODO: choose path to download 
+                try:
+                    files.download(filename, dest="") #download from google collab to local storage 
+                except:
+                    self.print_to_log_file('Running locally, no local checkpoint need be downloaded')
+
             else:
                 self.print_to_log_file('No checkpoint written, checkpointing is disabled')
 
     def load_checkpoint(self, filename_or_checkpoint: Union[dict, str]) -> None:
+        #TODO: load from local checkpoint, not 
         if not self.was_initialized:
             self.initialize()
 
         if isinstance(filename_or_checkpoint, str):
+            #TODO: upload works?
+            try:
+                file = files.upload()
+            except:
+                self.print_to_log_file('Running locally, no checkpoint uploaded')
+
             checkpoint = torch.load(filename_or_checkpoint, map_location=self.device)
         # if state dict comes from nn.DataParallel but we use non-parallel model here then the state dict keys do not
         # match. Use heuristic to make it match
